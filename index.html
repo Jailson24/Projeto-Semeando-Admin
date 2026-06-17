@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração - Projeto Semeando</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root { --primary-dark: #062419; --emerald-deep: #046c46; --emerald-main: #059669; --emerald-light: #34d399; --bg-site: #f4fbf7; --card-bg: rgba(255, 255, 255, 0.85); --text-main: #1f3a30; --danger: #dc2626; --transition: all 0.4s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-site); color: var(--text-main); line-height: 1.7; overflow-x: hidden; }
+
+        header { background: #fff; border-bottom: 2px solid var(--emerald-main); position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 10px 6%; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .logo img { height: 60px; object-fit: contain; }
+        #navAdmin { display: none; } 
+        nav ul { list-style: none; display: flex; gap: 8px; }
+        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px; transition: var(--transition); }
+        nav a:hover, nav a.active { color: #ffffff; background-color: var(--emerald-main); }
+        .btn-logout { color: var(--danger); border: 2px solid var(--danger); }
+        .btn-logout:hover { background: var(--danger); color: #fff; }
+
+        main { margin-top: 100px; padding: 0 6% 80px 6%; min-height: 85vh; }
+        section { display: none; animation: slideUpFade 0.6s forwards; }
+        section.active { display: block; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 2rem; font-weight: 800; color: var(--primary-dark); text-align: center; margin-bottom: 35px; }
+        
+        .card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.8); padding: 35px; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto 40px auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: flex; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--primary-dark); align-items: center; gap: 6px; }
+        input, textarea, select { width: 100%; padding: 14px 18px; border: 2px solid rgba(5,150,105,0.15); border-radius: 14px; outline: none; font-size: 0.95rem; }
+        input[type="file"] { background: #fff; padding: 10px; cursor: pointer; }
+        input:focus { border-color: var(--emerald-main); }
+        
+        .btn { background: var(--emerald-main); color: #fff; padding: 14px 32px; border: none; border-radius: 30px; cursor: pointer; font-weight: 700; display: inline-flex; justify-content: center; width: 100%; transition: 0.3s; }
+        .btn:hover { background: var(--emerald-deep); }
+        
+        .btn-delete { background: var(--danger); padding: 10px 20px; border-radius: 12px; width: 100%; font-size: 0.9rem; font-weight: bold; margin-top: 15px; border: none; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-delete:hover { background: #b91c1c; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(220, 38, 38, 0.5); }
+        
+        .table-container { overflow-x: auto; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: rgba(5,150,105,0.05); padding: 18px; text-align: left; font-size: 0.85rem; }
+        td { padding: 16px 18px; border-bottom: 1px solid #eee; }
+
+        .gallery-grid, .partners-grid { display: grid; gap: 25px; max-width: 1100px; margin: 0 auto; align-items: start; }
+        .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+        .partners-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+        
+        .media-item { border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.08); background: #000; }
+        .media-img { width: 100%; height: auto; display: block; opacity: 0.6; }
+        .media-overlay { position: absolute; bottom: 0; left: 0; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+        .media-overlay span { color: #fff; font-weight: bold; margin-bottom: 10px; text-align: center; font-size: 1.1rem; }
+        
+        .partner-card { background: #fff; padding: 25px; border-radius: 20px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
+        #loginSection { display: flex; flex-direction: column; justify-content: center; min-height: 70vh; }
+
+        #toast-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--emerald-main); color: white; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 10px 30px rgba(5,150,105,0.4); animation: fadeToast 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .toast.error { background: var(--danger); box-shadow: 0 10px 30px rgba(220,38,38,0.4); }
+        @keyframes fadeToast { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        @media (max-width: 768px) {
+            header { padding: 5px 5%; justify-content: center; border-bottom: none; }
+            .logo img { height: 55px; }
+            #navAdmin { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); flex-direction: row; padding: 8px 10px; justify-content: space-between; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-top: 1px solid rgba(0,0,0,0.05); overflow-x: auto; white-space: nowrap; z-index: 1000; }
+            nav ul { width: 100%; justify-content: space-between; }
+            nav a { flex-direction: column; padding: 6px; font-size: 0.65rem; font-weight: 700; gap: 2px; border-radius: 12px; min-width: 65px; text-align: center;}
+            nav a i { font-size: 1.3rem; }
+            main { margin-top: 90px; margin-bottom: 80px; padding: 0 5% 50px 5%; }
+            .btn-delete { padding: 12px; font-size: 1rem; }
+            #toast-container { bottom: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><img src="img/imagem.png" alt="Logo Admin"></div>
+        <nav id="navAdmin">
+            <ul>
+                <li><a class="nav-link active" onclick="showSection('sec-voluntarios')"><i class="ph ph-users"></i> Voluntários</a></li>
+                <li><a class="nav-link" onclick="showSection('sec-midias')"><i class="ph ph-images"></i> Mídias</a></li>
+                <li><a class="nav-link" onclick="showSection('sec-parceiros')"><i class="ph ph-handshake"></i> Parceiros</a></li>
+                <li><a class="nav-link" onclick="showSection('sec-config')"><i class="ph ph-gear"></i> Configs</a></li>
+                <li><a class="nav-link btn-logout" onclick="fazerLogout()"><i class="ph ph-sign-out"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="toast-container"></div>
+
+    <main>
+        <section id="sec-login" class="active">
+            <div id="loginSection">
+                <div class="card" style="max-width: 450px; text-align: center;">
+                    <i class="ph-fill ph-lock-key" style="font-size: 3rem; color: var(--emerald-main); margin-bottom: 15px;"></i>
+                    <h3 style="margin-bottom: 25px;">Acesso Restrito</h3>
+                    <form onsubmit="fazerLogin(event)">
+                        <div class="form-group"><input type="email" id="login-email" required placeholder="E-mail"></div>
+                        <div class="form-group"><input type="password" id="login-senha" required placeholder="Senha"></div>
+                        <button type="submit" id="btn-login" class="btn">Entrar <i class="ph ph-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-voluntarios">
+            <h2>Inscrições Recebidas</h2>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Nome</th><th>WhatsApp</th><th>E-mail</th><th>Área</th><th>Data</th><th>Ação</th></tr></thead>
+                    <tbody id="lista-voluntarios"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="sec-midias">
+            <h2>Gestão de Mídias</h2>
+            <div class="card">
+                <form onsubmit="salvarMidia(event)">
+                    <div class="form-group"><label>Título da Imagem</label><input type="text" id="midia-titulo" required></div>
+                    <div class="form-group">
+                        <label>Selecionar Foto (Auto-Compressão Ativada)</label>
+                        <input type="file" id="midia-file" accept="image/*" required>
+                    </div>
+                    <button type="submit" id="btn-midia" class="btn">Publicar no Site <i class="ph ph-upload-simple"></i></button>
+                </form>
+            </div>
+            <div class="gallery-grid" id="lista-midias"></div>
+        </section>
+
+        <section id="sec-parceiros">
+            <h2>Gestão de Parceiros</h2>
+            <div class="card">
+                <form onsubmit="salvarParceiro(event)">
+                    <div class="form-group"><label>Nome da Instituição</label><input type="text" id="parceiro-nome" required></div>
+                    <div class="form-group"><label>Descrição</label><textarea id="parceiro-desc" rows="3" required></textarea></div>
+                    <div class="form-group"><label>Link (Opcional - Formato: https://...)</label><input type="url" id="parceiro-link"></div>
+                    <button type="submit" id="btn-parceiro" class="btn">Adicionar Parceiro</button>
+                </form>
+            </div>
+            <div class="partners-grid" id="lista-parceiros"></div>
+        </section>
+
+        <section id="sec-config">
+            <h2>Configurações do Site</h2>
+            <div class="card">
+                <form onsubmit="salvarConfig(event)">
+                    <div class="form-group">
+                        <label><i class="ph ph-whatsapp-logo"></i> Número do WhatsApp</label>
+                        <input type="text" id="cfg-whatsapp" placeholder="Ex: 5521988801674">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="ph ph-envelope"></i> E-mail de Recebimento</label>
+                        <input type="email" id="cfg-email" placeholder="Ex: seu@email.com">
+                    </div>
+                    <div class="form-group" style="padding: 15px; border: 1px dashed var(--emerald-main); border-radius: 10px;">
+                        <label><i class="ph ph-qr-code"></i> Imagem do QR Code PIX</label>
+                        <input type="file" id="cfg-pix-img" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="ph ph-copy"></i> Chave PIX (Texto)</label>
+                        <input type="text" id="cfg-pix" placeholder="Sua chave PIX aqui">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="ph ph-instagram-logo"></i> Link do Instagram</label>
+                        <input type="url" id="cfg-instagram">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="ph ph-facebook-logo"></i> Link do Facebook</label>
+                        <input type="url" id="cfg-facebook">
+                    </div>
+                    <button type="submit" id="btn-config" class="btn">Salvar Configurações <i class="ph ph-floppy-disk"></i></button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function showToast(mensagem, isError = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerHTML = `<i class="ph-fill ${isError ? 'ph-warning-circle' : 'ph-check-circle'}" style="font-size:1.2rem;"></i> ${mensagem}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUsp1M9wrjBbM356dx2QvD5wZp_ir53us", authDomain: "projeto-semeando.firebaseapp.com",
+            projectId: "projeto-semeando", storageBucket: "projeto-semeando.firebasestorage.app",
+            messagingSenderId: "1022740589777", appId: "1:1022740589777:web:18a4b2ede4f058f9a6a9f0"
+        };
+
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+
+        const compressImage = (file, maxSizeKB = 700) => new Promise((resolve, reject) => {
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width; let height = img.height;
+                    const MAX = 1280;
+                    if (width > height) { if (width > MAX) { height *= MAX / width; width = MAX; } } 
+                    else { if (height > MAX) { width *= MAX / height; height = MAX; } }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    let q = 0.9; let dataUrl = canvas.toDataURL('image/jpeg', q);
+                    while (dataUrl.length * 0.75 > maxSizeKB * 1024 && q > 0.1) { q -= 0.1; dataUrl = canvas.toDataURL('image/jpeg', q); }
+                    resolve(dataUrl);
+                };
+            };
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) { document.getElementById('navAdmin').style.display = 'flex'; showSection('sec-voluntarios'); carregarTudo(); } 
+            else { document.getElementById('navAdmin').style.display = 'none'; showSection('sec-login'); }
+        });
+
+        window.fazerLogin = async (e) => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-senha').value); e.target.reset(); } catch (err) { showToast("Acesso Negado! Dados Incorretos.", true); } }
+        window.fazerLogout = () => signOut(auth);
+        
+        window.showSection = (id) => { 
+            document.querySelectorAll('main section').forEach(s => s.classList.remove('active')); 
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); 
+            document.getElementById(id).classList.add('active'); 
+            if(event && event.currentTarget) event.currentTarget.classList.add('active'); 
+        }
+
+        window.carregarTudo = () => { listarVoluntarios(); listarMidias(); listarParceiros(); carregarConfig(); }
+
+        async function listarVoluntarios() {
+            const container = document.getElementById('lista-voluntarios'); container.innerHTML = '';
+            const snap = await getDocs(query(collection(db, "voluntarios")));
+            snap.forEach(doc => { const v = doc.data(); container.innerHTML += `<tr><td>${v.nome}</td><td><a href="https://wa.me/55${v.whatsapp.replace(/\D/g, '')}" target="_blank">${v.whatsapp}</a></td><td>${v.email}</td><td>${v.area}</td><td>${v.dataCadastro}</td><td><button onclick="apagarDado('voluntarios', '${doc.id}')" class="btn-delete" style="margin:0; width:auto;"><i class="ph ph-trash"></i></button></td></tr>`; });
+        }
+
+        window.salvarMidia = async (e) => { 
+            e.preventDefault(); const btn = document.getElementById('btn-midia'); const file = document.getElementById('midia-file').files[0];
+            if(!file) return showToast("Escolha uma foto.", true);
+            btn.innerHTML = "Processando... <i class='ph ph-spinner-gap'></i>";
+            try {
+                const img = await compressImage(file);
+                await addDoc(collection(db, "midias"), { titulo: document.getElementById('midia-titulo').value, url: img });
+                showToast("Mídia adicionada com sucesso!"); e.target.reset(); listarMidias(); 
+            } catch(error) { showToast("Erro ao salvar mídia.", true); } 
+            finally { btn.innerHTML = "Publicar no Site <i class='ph ph-upload-simple'></i>"; }
+        }
+
+        async function listarMidias() { 
+            const container = document.getElementById('lista-midias'); container.innerHTML = ''; 
+            const snap = await getDocs(collection(db, "midias")); 
+            snap.forEach(d => { 
+                const m = d.data(); 
+                container.innerHTML += `
+                <div class="media-item">
+                    <img src="${m.url}" class="media-img" alt="${m.titulo}">
+                    <div class="media-overlay">
+                        <span>${m.titulo}</span>
+                        <button class="btn-delete" onclick="apagarDado('midias', '${d.id}')"><i class="ph ph-trash"></i> Excluir</button>
+                    </div>
+                </div>`; 
+            }); 
+        }
+
+        window.salvarParceiro = async (e) => { e.preventDefault(); await addDoc(collection(db, "parceiros"), { nome: document.getElementById('parceiro-nome').value, descricao: document.getElementById('parceiro-desc').value, link: document.getElementById('parceiro-link').value }); showToast("Parceiro salvo!"); e.target.reset(); listarParceiros(); }
+        async function listarParceiros() { const container = document.getElementById('lista-parceiros'); container.innerHTML = ''; const snap = await getDocs(collection(db, "parceiros")); snap.forEach(d => { const p = d.data(); container.innerHTML += `<div class="partner-card"><div><h3>${p.nome}</h3><p>${p.descricao}</p></div><button class="btn-delete" onclick="apagarDado('parceiros', '${d.id}')"><i class="ph ph-trash"></i> Remover</button></div>`; }); }
+
+        window.apagarDado = async (col, id) => { if(confirm("Apagar permanentemente do sistema?")) { await deleteDoc(doc(db, col, id)); showToast("Removido com sucesso!"); carregarTudo(); } }
+
+        let qrCodePixUrlAtual = "";
+        async function carregarConfig() {
+            const configDoc = await getDoc(doc(db, "config", "site"));
+            if (configDoc.exists()) {
+                const c = configDoc.data();
+                document.getElementById('cfg-whatsapp').value = c.whatsapp || ''; document.getElementById('cfg-email').value = c.email || ''; document.getElementById('cfg-pix').value = c.pix || ''; document.getElementById('cfg-instagram').value = c.instagram || ''; document.getElementById('cfg-facebook').value = c.facebook || ''; qrCodePixUrlAtual = c.pixImgUrl || "";
+            }
+        }
+
+        window.salvarConfig = async (e) => {
+            e.preventDefault(); const btn = document.getElementById('btn-config'); btn.innerHTML = "A guardar...";
+            try {
+                let pixImgUrlToSave = qrCodePixUrlAtual; const fileInput = document.getElementById('cfg-pix-img');
+                if(fileInput.files.length > 0) pixImgUrlToSave = await compressImage(fileInput.files[0]);
+                await setDoc(doc(db, "config", "site"), { whatsapp: document.getElementById('cfg-whatsapp').value, email: document.getElementById('cfg-email').value, pix: document.getElementById('cfg-pix').value, pixImgUrl: pixImgUrlToSave, instagram: document.getElementById('cfg-instagram').value, facebook: document.getElementById('cfg-facebook').value }, { merge: true });
+                showToast("Configurações atualizadas!");
+            } catch (err) { showToast("Erro ao guardar dados.", true); } 
+            finally { btn.innerHTML = "Salvar Configurações <i class='ph ph-floppy-disk'></i>"; }
+        }
+    </script>
+</body>
+</html>
