@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administração - Projeto Semeando</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#059669">
+    <link rel="apple-touch-icon" href="./img/imagem.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
@@ -297,6 +302,16 @@
                 showToast("Configurações atualizadas!");
             } catch (err) { showToast("Erro ao guardar dados.", true); } 
             finally { btn.innerHTML = "Salvar Configurações <i class='ph ph-floppy-disk'></i>"; }
+        }
+    </script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('ServiceWorker registrado com sucesso:', registration.scope))
+                    .catch(error => console.log('Falha ao registrar o ServiceWorker:', error));
+            });
         }
     </script>
 </body>
