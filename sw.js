@@ -1,9 +1,8 @@
-const CACHE_NAME = 'semeando-app-v1';
+const CACHE_NAME = 'semeando-admin-v1';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json',
-  './img/imagem.png'
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {

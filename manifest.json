@@ -1,15 +1,15 @@
 {
-  "name": "Projeto Semeando",
-  "short_name": "Semeando",
-  "description": "Aplicativo oficial do Projeto Semeando",
+  "name": "Admin - Projeto Semeando",
+  "short_name": "Semeando Admin",
+  "description": "Painel Administrativo do Projeto Semeando",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f4fbf7",
+  "background_color": "#ffffff",
   "theme_color": "#059669",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "img/imagem.png",
+      "src": "../img/imagem.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

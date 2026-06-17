@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
     <title>Administração - Projeto Semeando</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="../img/imagem.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
@@ -52,7 +57,7 @@
         
         .media-item { border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.08); background: #000; }
         .media-img { width: 100%; height: auto; display: block; opacity: 0.6; }
-        .media-overlay { position: absolute; bottom: 0; left: 0; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+        .media-overlay { position: absolute; bottom: 0; left: 0; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); opacity: 1; }
         .media-overlay span { color: #fff; font-weight: bold; margin-bottom: 10px; text-align: center; font-size: 1.1rem; }
         
         .partner-card { background: #fff; padding: 25px; border-radius: 20px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
@@ -60,7 +65,7 @@
 
         #toast-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: var(--emerald-main); color: white; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 10px 30px rgba(5,150,105,0.4); animation: fadeToast 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-        .toast.error { background: var(--danger); box-shadow: 0 10px 30px rgba(220,38,38,0.4); }
+        .toast.error { background: var(--danger); box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4); }
         @keyframes fadeToast { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
         @media (max-width: 768px) {
@@ -79,7 +84,7 @@
 <body>
 
     <header>
-        <div class="logo"><img src="img/imagem.png" alt="Logo Admin"></div>
+        <div class="logo"><img src="../img/imagem.png" alt="Logo Admin"></div>
         <nav id="navAdmin">
             <ul>
                 <li><a class="nav-link active" onclick="showSection('sec-voluntarios')"><i class="ph ph-users"></i> Voluntários</a></li>
@@ -194,7 +199,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAUsp1M9wrjBbM356dx2QvD5wZp_ir53us", authDomain: "projeto-semeando.firebaseapp.com",
@@ -202,7 +206,9 @@
             messagingSenderId: "1022740589777", appId: "1:1022740589777:web:18a4b2ede4f058f9a6a9f0"
         };
 
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); 
+        const { getFirestore: gf, collection: col, addDoc: ad, getDocs: gd, deleteDoc: dd, doc: dc, setDoc: sd, getDoc: gDc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+        const db = gf(app);
 
         const compressImage = (file, maxSizeKB = 700) => new Promise((resolve, reject) => {
             const reader = new FileReader(); reader.readAsDataURL(file);
@@ -242,7 +248,7 @@
 
         async function listarVoluntarios() {
             const container = document.getElementById('lista-voluntarios'); container.innerHTML = '';
-            const snap = await getDocs(query(collection(db, "voluntarios")));
+            const snap = await gd(query(col(db, "voluntarios")));
             snap.forEach(doc => { const v = doc.data(); container.innerHTML += `<tr><td>${v.nome}</td><td><a href="https://wa.me/55${v.whatsapp.replace(/\D/g, '')}" target="_blank">${v.whatsapp}</a></td><td>${v.email}</td><td>${v.area}</td><td>${v.dataCadastro}</td><td><button onclick="apagarDado('voluntarios', '${doc.id}')" class="btn-delete" style="margin:0; width:auto;"><i class="ph ph-trash"></i></button></td></tr>`; });
         }
 
@@ -252,7 +258,7 @@
             btn.innerHTML = "Processando... <i class='ph ph-spinner-gap'></i>";
             try {
                 const img = await compressImage(file);
-                await addDoc(collection(db, "midias"), { titulo: document.getElementById('midia-titulo').value, url: img });
+                await ad(col(db, "midias"), { titulo: document.getElementById('midia-titulo').value, url: img });
                 showToast("Mídia adicionada com sucesso!"); e.target.reset(); listarMidias(); 
             } catch(error) { showToast("Erro ao salvar mídia.", true); } 
             finally { btn.innerHTML = "Publicar no Site <i class='ph ph-upload-simple'></i>"; }
@@ -260,7 +266,7 @@
 
         async function listarMidias() { 
             const container = document.getElementById('lista-midias'); container.innerHTML = ''; 
-            const snap = await getDocs(collection(db, "midias")); 
+            const snap = await gd(col(db, "midias")); 
             snap.forEach(d => { 
                 const m = d.data(); 
                 container.innerHTML += `
@@ -274,14 +280,14 @@
             }); 
         }
 
-        window.salvarParceiro = async (e) => { e.preventDefault(); await addDoc(collection(db, "parceiros"), { nome: document.getElementById('parceiro-nome').value, descricao: document.getElementById('parceiro-desc').value, link: document.getElementById('parceiro-link').value }); showToast("Parceiro salvo!"); e.target.reset(); listarParceiros(); }
-        async function listarParceiros() { const container = document.getElementById('lista-parceiros'); container.innerHTML = ''; const snap = await getDocs(collection(db, "parceiros")); snap.forEach(d => { const p = d.data(); container.innerHTML += `<div class="partner-card"><div><h3>${p.nome}</h3><p>${p.descricao}</p></div><button class="btn-delete" onclick="apagarDado('parceiros', '${d.id}')"><i class="ph ph-trash"></i> Remover</button></div>`; }); }
+        window.salvarParceiro = async (e) => { e.preventDefault(); await ad(col(db, "parceiros"), { nome: document.getElementById('parceiro-nome').value, descricao: document.getElementById('parceiro-desc').value, link: document.getElementById('parceiro-link').value }); showToast("Parceiro salvo!"); e.target.reset(); listarParceiros(); }
+        async function listarParceiros() { const container = document.getElementById('lista-parceiros'); container.innerHTML = ''; const snap = await gd(col(db, "parceiros")); snap.forEach(d => { const p = d.data(); container.innerHTML += `<div class="partner-card"><div><h3>${p.nome}</h3><p>${p.descricao}</p></div><button class="btn-delete" onclick="apagarDado('parceiros', '${d.id}')"><i class="ph ph-trash"></i> Remover</button></div>`; }); }
 
-        window.apagarDado = async (col, id) => { if(confirm("Apagar permanentemente do sistema?")) { await deleteDoc(doc(db, col, id)); showToast("Removido com sucesso!"); carregarTudo(); } }
+        window.apagarDado = async (colecao, id) => { if(confirm("Apagar permanentemente do sistema?")) { await dd(dc(db, colecao, id)); showToast("Removido com sucesso!"); carregarTudo(); } }
 
         let qrCodePixUrlAtual = "";
         async function carregarConfig() {
-            const configDoc = await getDoc(doc(db, "config", "site"));
+            const configDoc = await gDc(dc(db, "config", "site"));
             if (configDoc.exists()) {
                 const c = configDoc.data();
                 document.getElementById('cfg-whatsapp').value = c.whatsapp || ''; document.getElementById('cfg-email').value = c.email || ''; document.getElementById('cfg-pix').value = c.pix || ''; document.getElementById('cfg-instagram').value = c.instagram || ''; document.getElementById('cfg-facebook').value = c.facebook || ''; qrCodePixUrlAtual = c.pixImgUrl || "";
@@ -293,11 +299,16 @@
             try {
                 let pixImgUrlToSave = qrCodePixUrlAtual; const fileInput = document.getElementById('cfg-pix-img');
                 if(fileInput.files.length > 0) pixImgUrlToSave = await compressImage(fileInput.files[0]);
-                await setDoc(doc(db, "config", "site"), { whatsapp: document.getElementById('cfg-whatsapp').value, email: document.getElementById('cfg-email').value, pix: document.getElementById('cfg-pix').value, pixImgUrl: pixImgUrlToSave, instagram: document.getElementById('cfg-instagram').value, facebook: document.getElementById('cfg-facebook').value }, { merge: true });
-                showToast("Configurações atualizadas!");
+                await sd(dc(db, "config", "site"), { whatsapp: document.getElementById('cfg-whatsapp').value, email: document.getElementById('cfg-email').value, pix: document.getElementById('cfg-pix').value, pixImgUrl: pixImgUrlToSave, instagram: document.getElementById('cfg-instagram').value, facebook: document.getElementById('cfg-facebook').value }, { merge: true });
+                showToast("Configurações updated!");
             } catch (err) { showToast("Erro ao guardar dados.", true); } 
             finally { btn.innerHTML = "Salvar Configurações <i class='ph ph-floppy-disk'></i>"; }
         }
+    </script>
+    
+    <script>
+        // Gatilho de Ativação do Aplicativo para o Painel Admin
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => console.log('Admin PWA Ativo')).catch(err => console.log('Erro Admin PWA:', err)); }); }
     </script>
 </body>
 </html>
